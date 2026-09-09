@@ -527,7 +527,7 @@
   <div class="tab-panel" id="planner-tab">
 
     <div class="card">
-      <h2>Add an expense</h2>
+      <h2 id="expenseFormTitle">Add an expense</h2>
       <p class="card-desc">Capture every travel cost before it disappears into memory.</p>
       <form id="expenseForm">
         <label for="expenseName">What did you spend on?</label>
@@ -553,7 +553,10 @@
         <label for="expensePaidBy">Paid by</label>
         <input type="text" id="expensePaidBy" placeholder="Your name or who paid (e.g., You, Alex, Card)">
 
-        <button type="submit" class="btn btn-primary">+ Add expense</button>
+        <div style="display: flex; gap: 8px;">
+          <button type="submit" class="btn btn-primary" id="expenseSubmitBtn">+ Add expense</button>
+          <button type="button" class="btn btn-outline" id="expenseCancelBtn" style="display: none;">Cancel</button>
+        </div>
       </form>
     </div>
 
@@ -717,7 +720,8 @@
   let state = loadState();
   let activeFilterCategoryId = null;
   let activeTab = 'planner';
-  let sortCategoryAscending = false; // false = descending (A-Z), true = ascending (Z-A)
+  let sortCategoryAscending = null; // null = date sort, false = Z-A, true = A-Z
+  let editingExpenseId = null; // Track which expense is being edited
 
   function saveState() {
     try {
@@ -777,6 +781,9 @@
   const expenseCategory = document.getElementById('expenseCategory');
   const expenseNote = document.getElementById('expenseNote');
   const expensePaidBy = document.getElementById('expensePaidBy');
+  const expenseSubmitBtn = document.getElementById('expenseSubmitBtn');
+  const expenseCancelBtn = document.getElementById('expenseCancelBtn');
+  const expenseFormTitle = document.getElementById('expenseFormTitle');
 
   const categoryForm = document.getElementById('categoryForm');
   const categoryName = document.getElementById('categoryName');
@@ -1031,10 +1038,17 @@
           <td>${escapeHtml(e.paidBy || '—')}</td>
           <td class="expense-note">${escapeHtml(e.note || '—')}</td>
           <td class="amount-cell">${money(e.amount)}</td>
-          <td><button type="button" class="btn-icon" data-delete-expense="${e.id}" title="Delete expense">🗑️</button></td>
+          <td>
+            <button type="button" class="btn-icon" data-edit-expense="${e.id}" title="Edit expense">✏️</button>
+            <button type="button" class="btn-icon" data-delete-expense="${e.id}" title="Delete expense">🗑️</button>
+          </td>
         </tr>
       `;
     }).join('');
+
+    expenseTableBody.querySelectorAll('[data-edit-expense]').forEach(btn => {
+      btn.addEventListener('click', () => editExpense(btn.dataset.editExpense));
+    });
 
     expenseTableBody.querySelectorAll('[data-delete-expense]').forEach(btn => {
       btn.addEventListener('click', () => deleteExpense(btn.dataset.deleteExpense));
@@ -1048,6 +1062,38 @@
     state.expenses = state.expenses.filter(e => e.id !== id);
     saveState();
     renderAll();
+  }
+
+  function editExpense(id) {
+    const exp = state.expenses.find(e => e.id === id);
+    if (!exp) return;
+    
+    // Populate form with expense data
+    expenseName.value = exp.name || '';
+    expenseAmount.value = exp.amount || '';
+    expenseDate.value = exp.date || '';
+    expenseCategory.value = exp.categoryId || '';
+    expenseNote.value = exp.note || '';
+    expensePaidBy.value = exp.paidBy || '';
+    
+    // Update form UI for editing
+    editingExpenseId = id;
+    expenseFormTitle.textContent = 'Edit expense';
+    expenseSubmitBtn.textContent = '✎ Update expense';
+    expenseCancelBtn.style.display = 'inline-block';
+    
+    // Scroll to form
+    expenseForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    expenseName.focus();
+  }
+
+  function cancelEdit() {
+    editingExpenseId = null;
+    expenseForm.reset();
+    expenseDate.value = todayISO();
+    expenseFormTitle.textContent = 'Add an expense';
+    expenseSubmitBtn.textContent = '+ Add expense';
+    expenseCancelBtn.style.display = 'none';
   }
 
   function updateCounts() {
@@ -1154,30 +1200,47 @@
     if (!name) { expenseName.focus(); return; }
     if (!amount || amount <= 0) { expenseAmount.focus(); return; }
 
-    const entry = {
-      id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      name,
-      amount,
-      date: expenseDate.value || todayISO(),
-      categoryId: expenseCategory.value || state.categories[0].id,
-      note: expenseNote.value.trim(),
-      paidBy: expensePaidBy.value.trim()
-    };
-    state.expenses.push(entry);
+    if (editingExpenseId) {
+      // Update existing expense
+      const exp = state.expenses.find(e => e.id === editingExpenseId);
+      if (exp) {
+        exp.name = name;
+        exp.amount = amount;
+        exp.date = expenseDate.value || todayISO();
+        exp.categoryId = expenseCategory.value || state.categories[0].id;
+        exp.note = expenseNote.value.trim();
+        exp.paidBy = expensePaidBy.value.trim();
+      }
+      cancelEdit();
+    } else {
+      // Add new expense
+      const entry = {
+        id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        name,
+        amount,
+        date: expenseDate.value || todayISO(),
+        categoryId: expenseCategory.value || state.categories[0].id,
+        note: expenseNote.value.trim(),
+        paidBy: expensePaidBy.value.trim()
+      };
+      state.expenses.push(entry);
+      
+      expenseName.value = '';
+      expenseAmount.value = '';
+      expenseNote.value = '';
+      expensePaidBy.value = '';
+      expenseDate.value = todayISO();
+    }
+    
     saveState();
-
-    expenseName.value = '';
-    expenseAmount.value = '';
-    expenseNote.value = '';
-    expensePaidBy.value = '';
-    expenseDate.value = todayISO();
-
     renderSnapshot();
     renderCategoryGrid();
     renderExpenseTable();
     updateCounts();
     if (activeTab === 'insights') renderInsights();
   });
+
+  expenseCancelBtn.addEventListener('click', cancelEdit);
 
   categoryForm.addEventListener('submit', (ev) => {
     ev.preventDefault();
