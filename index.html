@@ -602,7 +602,7 @@
           <thead>
             <tr>
               <th>Expense</th>
-              <th>Category</th>
+              <th id="sortCategoryHeader" style="cursor: pointer; user-select: none;">Category <span id="sortCategoryArrow"></span></th>
               <th>Date</th>
               <th>Paid by</th>
               <th>Note</th>
@@ -717,6 +717,7 @@
   let state = loadState();
   let activeFilterCategoryId = null;
   let activeTab = 'planner';
+  let sortCategoryAscending = false; // false = descending (A-Z), true = ascending (Z-A)
 
   function saveState() {
     try {
@@ -789,6 +790,8 @@
   const filterBannerText = document.getElementById('filterBannerText');
   const clearFilterBtn = document.getElementById('clearFilterBtn');
   const paidByBreakdown = document.getElementById('paidByBreakdown');
+  const sortCategoryHeader = document.getElementById('sortCategoryHeader');
+  const sortCategoryArrow = document.getElementById('sortCategoryArrow');
 
   const insTotalSpent = document.getElementById('insTotalSpent');
   const insAvg = document.getElementById('insAvg');
@@ -980,16 +983,41 @@
     let list = state.expenses.slice();
     if (activeFilterCategoryId) list = list.filter(e => e.categoryId === activeFilterCategoryId);
 
-    // newest first: by date desc, then by insertion order desc
-    list = list
-      .map((e, idx) => ({ e, idx }))
-      .sort((a, b) => {
-        if (a.e.date !== b.e.date) return a.e.date < b.e.date ? 1 : -1;
-        return b.idx - a.idx;
-      })
-      .map(x => x.e);
+    // Sort by category if category sort is active, otherwise sort by date (newest first)
+    if (sortCategoryAscending !== null) {
+      list = list
+        .map((e, idx) => ({ e, idx }))
+        .sort((a, b) => {
+          const catA = getCategory(a.e.categoryId);
+          const catB = getCategory(b.e.categoryId);
+          const nameA = catA ? catA.name : 'Uncategorized';
+          const nameB = catB ? catB.name : 'Uncategorized';
+          
+          const comparison = nameA.localeCompare(nameB);
+          return sortCategoryAscending ? comparison : -comparison;
+        })
+        .map(x => x.e);
+    } else {
+      // Default: newest first by date desc, then by insertion order desc
+      list = list
+        .map((e, idx) => ({ e, idx }))
+        .sort((a, b) => {
+          if (a.e.date !== b.e.date) return a.e.date < b.e.date ? 1 : -1;
+          return b.idx - a.idx;
+        })
+        .map(x => x.e);
+    }
 
     expenseEmptyMsg.hidden = list.length > 0;
+
+    // Update sort arrow display
+    if (sortCategoryAscending === true) {
+      sortCategoryArrow.textContent = ' ↑ A-Z';
+    } else if (sortCategoryAscending === false) {
+      sortCategoryArrow.textContent = ' ↓ Z-A';
+    } else {
+      sortCategoryArrow.textContent = '';
+    }
 
     expenseTableBody.innerHTML = list.map(e => {
       const cat = getCategory(e.categoryId);
@@ -1107,6 +1135,18 @@
     saveState();
   });
 
+  sortCategoryHeader.addEventListener('click', () => {
+    // Toggle between: no sort (null) -> ascending (true) -> descending (false) -> no sort
+    if (sortCategoryAscending === null) {
+      sortCategoryAscending = false; // Start with descending (Z-A)
+    } else if (sortCategoryAscending === false) {
+      sortCategoryAscending = true; // Switch to ascending (A-Z)
+    } else {
+      sortCategoryAscending = null; // Back to default date sort
+    }
+    renderExpenseTable();
+  });
+
   expenseForm.addEventListener('submit', (ev) => {
     ev.preventDefault();
     const name = expenseName.value.trim();
@@ -1161,6 +1201,7 @@
 
   clearFilterBtn.addEventListener('click', () => {
     activeFilterCategoryId = null;
+    sortCategoryAscending = null; // Reset sort when clearing filter
     renderCategoryGrid();
     renderExpenseTable();
   });
@@ -1169,6 +1210,7 @@
     if (!confirm('Reset this trip back to the example data? Anything you added will be lost.')) return;
     state = defaultState();
     activeFilterCategoryId = null;
+    sortCategoryAscending = null; // Reset sort on full reset
     saveState();
     renderAll();
   });
