@@ -1,0 +1,106 @@
+{
+  "tripName": "kazakhstan/Kyrgyzstan Autumn Trip",
+  "budget": 5000,
+  "startDate": "2026-11-02",
+  "endDate": "2026-11-15",
+  "categories": [
+    {
+      "id": "flights",
+      "name": "Flights",
+      "emoji": "✈️",
+      "color": "ocean"
+    },
+    {
+      "id": "stays",
+      "name": "Stays",
+      "emoji": "🛏️",
+      "color": "grape"
+    },
+    {
+      "id": "food",
+      "name": "Food",
+      "emoji": "🍜",
+      "color": "sunset"
+    },
+    {
+      "id": "transport",
+      "name": "Transport",
+      "emoji": "🚕",
+      "color": "forest"
+    },
+    {
+      "id": "fun",
+      "name": "Fun",
+      "emoji": "🎡",
+      "color": "rose"
+    },
+    {
+      "id": "shopping",
+      "name": "Shopping",
+      "emoji": "🛍️",
+      "color": "berry"
+    },
+    {
+      "id": "misc",
+      "name": "Misc",
+      "emoji": "🧁",
+      "color": "slate"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "emttudjleujkv",
+      "name": "Return Flight",
+      "amount": 1394.6,
+      "date": "2026-11-02",
+      "categoryId": "flights",
+      "note": "",
+      "paidBy": "Farid"
+    },
+    {
+      "id": "emttug250oyzg",
+      "name": "Astana International Hotel",
+      "amount": 241.86,
+      "date": "2026-11-11",
+      "categoryId": "stays",
+      "note": "3 nights",
+      "paidBy": "Farid"
+    },
+    {
+      "id": "emttuh4cipos3",
+      "name": "Silk Way",
+      "amount": 213.66,
+      "date": "2026-11-02",
+      "categoryId": "stays",
+      "note": "3 nights",
+      "paidBy": "Farid"
+    },
+    {
+      "id": "emttujomovtpx",
+      "name": "Bishkek Boutique Hotel",
+      "amount": 78.69,
+      "date": "2026-11-05",
+      "categoryId": "stays",
+      "note": "1 night",
+      "paidBy": "Farid"
+    },
+    {
+      "id": "emttuufwux5xo",
+      "name": "Local Tour to Kyrgystan (To be paid to loca agency)",
+      "amount": 1270,
+      "date": "2026-11-06",
+      "categoryId": "transport",
+      "note": "",
+      "paidBy": "Farid"
+    },
+    {
+      "id": "emttuz4vqelfw",
+      "name": "Local Tour to Kyrgystan (initial deposit)",
+      "amount": 559.13,
+      "date": "2026-11-02",
+      "categoryId": "transport",
+      "note": "",
+      "paidBy": "Farid"
+    }
+  ]
+}
