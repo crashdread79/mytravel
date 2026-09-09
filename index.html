@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Expense</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --card-bg: #ffffff;
+    --border: #e6e3dd;
+    --text: #1a1a1a;
+    --muted: #6b6f76;
+    --muted-2: #8a8f98;
+    --accent: #1f6feb;
+    --accent-dark: #164fb0;
+    --danger: #c0392b;
+    --danger-bg: #fdecea;
+    --good: #2f9e58;
+    --warn: #e08a2c;
+    --pill-bg: #f3f2ee;
+    --track: #edece7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 28px 16px 60px;
+    display: flex;
+    justify-content: center;
+  }
+  .page {
+    width: 100%;
+    max-width: 720px;
+  }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--pill-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 12px;
+  }
+  h1 {
+    font-size: 34px;
+    font-weight: 800;
+    margin: 4px 0 8px;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0 0 16px;
+    max-width: 560px;
+  }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 14px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 16px;
+  }
+  .field-desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 2px 0 10px;
+  }
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+  }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 520px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 520px) {
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+  .stat-tile {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fcfbf9;
+  }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--muted-2);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .usage-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--track);
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--good);
+    width: 0%;
+    transition: width 0.25s ease, background 0.25s ease;
+  }
+  .progress-fill.warn { background: var(--warn); }
+  .progress-fill.danger { background: var(--danger); }
+  .usage-msg {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+  }
+  .usage-msg.over { color: var(--danger); font-weight: 600; }
+  .saved-status {
+    font-size: 13px;
+    color: var(--good);
+    font-weight: 600;
+    margin: 0;
+  }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .toolbar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+  }
+  .toolbar-info strong { font-size: 14px; }
+  .toolbar-info span { color: var(--muted); }
+  .btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 9px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary {
+    background: var(--text);
+    color: #fff;
+    width: 100%;
+  }
+  .btn-primary:hover { background: #333; }
+  .btn-primary:disabled {
+    background: #cfcdc7;
+    cursor: not-allowed;
+  }
+  .btn-outline {
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { background: var(--pill-bg); }
+  .btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--muted);
+    padding: 4px 6px;
+    border-radius: 6px;
+  }
+  .btn-icon:hover { background: var(--danger-bg); color: var(--danger); }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--pill-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 16px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .category-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 520px) {
+    .category-grid { grid-template-columns: 1fr; }
+  }
+  .category-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border: 1px solid var(--cat-color, var(--border));
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease;
+  }
+  .category-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .category-card.active-filter {
+    box-shadow: 0 0 0 2px var(--cat-color, var(--accent));
+  }
+  .category-card .cc-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .category-card .cc-emoji { font-size: 20px; }
+  .category-card .cc-name { font-weight: 700; font-size: 14px; }
+  .category-card .cc-count { font-size: 12px; color: var(--muted); }
+  .category-card .cc-amount {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--cat-color, var(--text));
+    white-space: nowrap;
+  }
+  .category-card .cc-delete {
+    background: none;
+    border: none;
+    color: var(--muted-2);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 4px;
+    line-height: 1;
+    margin-left: 4px;
+  }
+  .category-card .cc-delete:hover { color: var(--danger); }
+  .filter-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--pill-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .filter-banner button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 4px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 560px;
+  }
+  th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted-2);
+    font-weight: 700;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  .expense-name { font-weight: 700; }
+  .expense-note { color: var(--muted); font-size: 12px; max-width: 220px; }
+  .cat-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--cat-color, var(--text));
+    white-space: nowrap;
+  }
+  .amount-cell { font-weight: 800; text-align: right; white-space: nowrap; }
+  .empty-msg {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 12px 0 0;
+    margin: 0;
+  }
+  .bar-row {
+    margin-bottom: 14px;
+  }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-row-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .bar-row-top .bar-name { display: flex; align-items: center; gap: 6px; }
+  .bar-track {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--track);
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+  .callout {
+    background: var(--pill-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="badges">
+    <span class="badge">🧭 Travel-ready</span>
+    <span class="badge">🗂️ Saved locally in this browser</span>
+  </div>
+
+  <h1>Travel Expense</h1>
+  <p class="subtitle">Plan your next trip, track every snack, cab ride, and museum ticket, and keep the whole budget in sync automatically.</p>
+
+  <div class="pills">
+    <span class="pill">📍 Fun, friendly budget planning</span>
+    <span class="pill">💾 Local storage memory</span>
+  </div>
+
+  <div class="card">
+    <h2>🗓️ Trip snapshot</h2>
+    <p class="card-desc">A quick view of how much fun your budget can still buy.</p>
+    <div class="stat-grid">
+      <div class="stat-tile">
+        <div class="stat-label">Budget</div>
+        <div class="stat-value" id="statBudget">$0</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Spent</div>
+        <div class="stat-value" id="statSpent">$0</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Remaining</div>
+        <div class="stat-value" id="statRemaining">$0</div>
+      </div>
+    </div>
+    <div class="usage-row">
+      <span>Budget usage</span>
+      <span id="usagePct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <p class="usage-msg" id="usageMsg">You still have $0 left to play with.</p>
+    
+    <div class="two-col" style="margin-top: 20px;">
+      <div>
+        <label for="tripStartDate">Start date</label>
+        <input type="date" id="tripStartDate">
+      </div>
+      <div>
+        <label for="tripEndDate">End date</label>
+        <input type="date" id="tripEndDate">
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+      <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700;">Paid by breakdown</h3>
+      <div id="paidByBreakdown" style="display: grid; gap: 8px;">
+        <p style="color: var(--muted); font-size: 13px; margin: 0;">No expenses yet</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <label for="tripNameInput">Trip name</label>
+    <p class="field-desc">Give your adventure a memorable label.</p>
+    <input type="text" id="tripNameInput" placeholder="Summer getaway">
+  </div>
+
+  <div class="card">
+    <label for="budgetInput">Budget limit</label>
+    <p class="field-desc">Set the total amount you want to spend.</p>
+    <input type="number" id="budgetInput" min="0" step="1" placeholder="0">
+  </div>
+
+  <div class="card">
+    <label>Saved status</label>
+    <p class="field-desc">Everything updates automatically.</p>
+    <p class="saved-status" id="savedStatus">Saved just now</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-info">
+      <strong id="expenseCountLabel">0 expenses logged</strong>
+      <span id="categoryCountLabel">0 categories available</span>
+    </div>
+    <button id="resetBtn" class="btn btn-outline" type="button">↺ Reset</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="planner" type="button">Planner</button>
+    <button class="tab-btn" data-tab="insights" type="button">Insights</button>
+  </div>
+
+  <!-- PLANNER TAB -->
+  <div class="tab-panel" id="planner-tab">
+
+    <div class="card">
+      <h2>Add an expense</h2>
+      <p class="card-desc">Capture every travel cost before it disappears into memory.</p>
+      <form id="expenseForm">
+        <label for="expenseName">What did you spend on?</label>
+        <input type="text" id="expenseName" placeholder="Dinner in town">
+
+        <div class="two-col">
+          <div>
+            <label for="expenseAmount">Amount</label>
+            <input type="number" id="expenseAmount" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div>
+            <label for="expenseDate">Date</label>
+            <input type="date" id="expenseDate">
+          </div>
+        </div>
+
+        <label for="expenseCategory">Category</label>
+        <select id="expenseCategory"></select>
+
+        <label for="expenseNote">Note</label>
+        <textarea id="expenseNote" rows="2" placeholder="Optional extra detail, like who you split it with."></textarea>
+
+        <label for="expensePaidBy">Paid by</label>
+        <input type="text" id="expensePaidBy" placeholder="Your name or who paid (e.g., You, Alex, Card)">
+
+        <button type="submit" class="btn btn-primary">+ Add expense</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Expense categories</h2>
+      <p class="card-desc">Create custom buckets so your trip spending stays organized.</p>
+      <form id="categoryForm">
+        <label for="categoryName">Category name</label>
+        <input type="text" id="categoryName" placeholder="Museums, beach snacks, taxis...">
+
+        <div class="two-col">
+          <div>
+            <label for="categoryEmoji">Emoji</label>
+            <input type="text" id="categoryEmoji" maxlength="4" placeholder="🏷️">
+          </div>
+          <div>
+            <label for="categoryColor">Color vibe</label>
+            <select id="categoryColor">
+              <option value="ocean">Ocean</option>
+              <option value="grape">Grape</option>
+              <option value="sunset">Sunset</option>
+              <option value="forest">Forest</option>
+              <option value="rose">Rose</option>
+              <option value="berry">Berry</option>
+              <option value="sky">Sky</option>
+              <option value="slate">Slate</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">+ Add category</button>
+      </form>
+    </div>
+
+    <div class="category-grid" id="categoryGrid"></div>
+
+    <div class="card">
+      <h2>Expense log</h2>
+      <p class="card-desc">Your newest travel purchases appear at the top.</p>
+      <div id="filterBanner" class="filter-banner" hidden>
+        <span id="filterBannerText"></span>
+        <button type="button" id="clearFilterBtn">Clear filter</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Expense</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Paid by</th>
+              <th>Note</th>
+              <th>Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="expenseTableBody"></tbody>
+        </table>
+      </div>
+      <p class="empty-msg" id="expenseEmptyMsg" hidden>No expenses yet — add your first one above.</p>
+    </div>
+
+  </div>
+
+  <!-- INSIGHTS TAB -->
+  <div class="tab-panel" id="insights-tab" hidden>
+
+    <div class="card">
+      <h2>Spending overview</h2>
+      <div class="stat-grid">
+        <div class="stat-tile">
+          <div class="stat-label">Total spent</div>
+          <div class="stat-value" id="insTotalSpent">$0</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-label">Avg per expense</div>
+          <div class="stat-value" id="insAvg">$0</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-label">Biggest expense</div>
+          <div class="stat-value" id="insBiggest">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>By category</h2>
+      <p class="card-desc">See where the trip budget is actually going.</p>
+      <div id="categoryBars"></div>
+    </div>
+
+    <div class="card">
+      <h2>Top category</h2>
+      <div class="callout" id="topCategoryMsg">Add expenses to see your top spending category.</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'travelExpenseData_v1';
+
+  const COLOR_VIBES = {
+    ocean:  { label: 'Ocean',  hex: '#1f6feb' },
+    grape:  { label: 'Grape',  hex: '#7c4fd6' },
+    sunset: { label: 'Sunset', hex: '#e08a2c' },
+    forest: { label: 'Forest', hex: '#2f9e58' },
+    rose:   { label: 'Rose',   hex: '#e0507a' },
+    berry:  { label: 'Berry',  hex: '#b23fae' },
+    sky:    { label: 'Sky',    hex: '#0ea5c8' },
+    slate:  { label: 'Slate',  hex: '#64748b' }
+  };
+
+  function colorHex(key) {
+    return (COLOR_VIBES[key] && COLOR_VIBES[key].hex) || COLOR_VIBES.slate.hex;
+  }
+
+  function todayISO() {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
+
+  const DEFAULT_CATEGORIES = [
+    { id: 'flights',   name: 'Flights',   emoji: '✈️', color: 'ocean' },
+    { id: 'stays',     name: 'Stays',     emoji: '🛏️', color: 'grape' },
+    { id: 'food',      name: 'Food',      emoji: '🍜', color: 'sunset' },
+    { id: 'transport', name: 'Transport', emoji: '🚕', color: 'forest' },
+    { id: 'fun',       name: 'Fun',       emoji: '🎡', color: 'rose' },
+    { id: 'shopping',  name: 'Shopping',  emoji: '🛍️', color: 'berry' },
+    { id: 'misc',      name: 'Misc',      emoji: '🧁', color: 'slate' }
+  ];
+
+  function defaultState() {
+    return {
+      tripName: 'Summer getaway',
+      budget: 2400,
+      startDate: '',
+      endDate: '',
+      categories: DEFAULT_CATEGORIES.map(c => ({ ...c })),
+      expenses: [
+        { id: 'e1', name: 'Airport coffee', amount: 12, date: todayISO(), categoryId: 'food', note: 'Tiny victory latte before boarding.', paidBy: 'You' },
+        { id: 'e2', name: 'Ride to hotel', amount: 34, date: todayISO(), categoryId: 'transport', note: 'Quick taxi from the station.', paidBy: 'You' }
+      ]
+    };
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.categories) && Array.isArray(parsed.expenses)) return parsed;
+      }
+    } catch (e) { /* storage unavailable or corrupt — fall back to defaults */ }
+    return defaultState();
+  }
+
+  let state = loadState();
+  let activeFilterCategoryId = null;
+  let activeTab = 'planner';
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const now = new Date();
+      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      savedStatus.textContent = `Saved at ${time}`;
+    } catch (e) {
+      savedStatus.textContent = 'Could not save (storage unavailable)';
+    }
+  }
+
+  function money(n) {
+    const num = Number(n) || 0;
+    const isWhole = Math.round(num) === num;
+    const abs = Math.abs(num);
+    const formatted = abs.toLocaleString('en-US', {
+      minimumFractionDigits: isWhole ? 0 : 2,
+      maximumFractionDigits: 2
+    });
+    return (num < 0 ? '-$' : '$') + formatted;
+  }
+
+  function formatDisplayDate(iso) {
+    if (!iso) return '—';
+    const parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  // ---- Element refs ----
+  const tripNameInput = document.getElementById('tripNameInput');
+  const budgetInput = document.getElementById('budgetInput');
+  const tripStartDate = document.getElementById('tripStartDate');
+  const tripEndDate = document.getElementById('tripEndDate');
+  const statBudget = document.getElementById('statBudget');
+  const statSpent = document.getElementById('statSpent');
+  const statRemaining = document.getElementById('statRemaining');
+  const usagePct = document.getElementById('usagePct');
+  const progressFill = document.getElementById('progressFill');
+  const usageMsg = document.getElementById('usageMsg');
+  const savedStatus = document.getElementById('savedStatus');
+  const expenseCountLabel = document.getElementById('expenseCountLabel');
+  const categoryCountLabel = document.getElementById('categoryCountLabel');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const plannerTab = document.getElementById('planner-tab');
+  const insightsTab = document.getElementById('insights-tab');
+
+  const expenseForm = document.getElementById('expenseForm');
+  const expenseName = document.getElementById('expenseName');
+  const expenseAmount = document.getElementById('expenseAmount');
+  const expenseDate = document.getElementById('expenseDate');
+  const expenseCategory = document.getElementById('expenseCategory');
+  const expenseNote = document.getElementById('expenseNote');
+  const expensePaidBy = document.getElementById('expensePaidBy');
+
+  const categoryForm = document.getElementById('categoryForm');
+  const categoryName = document.getElementById('categoryName');
+  const categoryEmoji = document.getElementById('categoryEmoji');
+  const categoryColor = document.getElementById('categoryColor');
+
+  const categoryGrid = document.getElementById('categoryGrid');
+  const expenseTableBody = document.getElementById('expenseTableBody');
+  const expenseEmptyMsg = document.getElementById('expenseEmptyMsg');
+  const filterBanner = document.getElementById('filterBanner');
+  const filterBannerText = document.getElementById('filterBannerText');
+  const clearFilterBtn = document.getElementById('clearFilterBtn');
+  const paidByBreakdown = document.getElementById('paidByBreakdown');
+
+  const insTotalSpent = document.getElementById('insTotalSpent');
+  const insAvg = document.getElementById('insAvg');
+  const insBiggest = document.getElementById('insBiggest');
+  const categoryBars = document.getElementById('categoryBars');
+  const topCategoryMsg = document.getElementById('topCategoryMsg');
+
+  // ---- Tabs ----
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTab = btn.dataset.tab;
+      tabButtons.forEach(b => b.classList.toggle('active', b === btn));
+      plannerTab.hidden = activeTab !== 'planner';
+      insightsTab.hidden = activeTab !== 'insights';
+      if (activeTab === 'insights') renderInsights();
+    });
+  });
+
+  // ---- Category helpers ----
+  function getCategory(id) {
+    return state.categories.find(c => c.id === id) || null;
+  }
+
+  function categoryTotals() {
+    const totals = {};
+    state.categories.forEach(c => { totals[c.id] = { count: 0, total: 0 }; });
+    state.expenses.forEach(e => {
+      if (!totals[e.categoryId]) totals[e.categoryId] = { count: 0, total: 0 };
+      totals[e.categoryId].count += 1;
+      totals[e.categoryId].total += Number(e.amount) || 0;
+    });
+    return totals;
+  }
+
+  function slugify(name) {
+    const base = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    return (base || 'category') + '-' + Date.now().toString(36);
+  }
+
+  // ---- Rendering ----
+  function renderTripFields() {
+    tripNameInput.value = state.tripName || '';
+    budgetInput.value = state.budget === 0 ? 0 : (state.budget || '');
+    tripStartDate.value = state.startDate || '';
+    tripEndDate.value = state.endDate || '';
+  }
+
+  function renderSnapshot() {
+    const budget = Number(state.budget) || 0;
+    const spent = state.expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    const remaining = budget - spent;
+    const pct = budget > 0 ? Math.round((spent / budget) * 100) : 0;
+
+    statBudget.textContent = money(budget);
+    statSpent.textContent = money(spent);
+    statRemaining.textContent = money(remaining);
+    usagePct.textContent = pct + '%';
+
+    const fillPct = Math.max(0, Math.min(100, pct));
+    progressFill.style.width = fillPct + '%';
+    progressFill.classList.remove('warn', 'danger');
+    if (pct >= 100) progressFill.classList.add('danger');
+    else if (pct >= 75) progressFill.classList.add('warn');
+
+    if (remaining < 0) {
+      usageMsg.textContent = `You're ${money(Math.abs(remaining))} over budget!`;
+      usageMsg.classList.add('over');
+    } else {
+      usageMsg.textContent = `You still have ${money(remaining)} left to play with.`;
+      usageMsg.classList.remove('over');
+    }
+    
+    renderPaidByBreakdown();
+  }
+
+  function renderPaidByBreakdown() {
+    // Group expenses by paidBy field
+    const breakdown = {};
+    state.expenses.forEach(e => {
+      const payer = e.paidBy || '(no payer)';
+      if (!breakdown[payer]) {
+        breakdown[payer] = 0;
+      }
+      breakdown[payer] += Number(e.amount) || 0;
+    });
+
+    // Sort by amount descending
+    const sorted = Object.entries(breakdown)
+      .sort((a, b) => b[1] - a[1]);
+
+    // Generate HTML
+    if (sorted.length === 0) {
+      paidByBreakdown.innerHTML = '<p style="color: var(--muted); font-size: 13px; margin: 0;">No expenses yet</p>';
+      return;
+    }
+
+    paidByBreakdown.innerHTML = sorted.map(([payer, amount]) => `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--pill-bg); border-radius: 8px; border: 1px solid var(--border);">
+        <span style="font-weight: 600; font-size: 13px;">${escapeHtml(payer)}</span>
+        <span style="font-weight: 800; font-size: 14px; color: var(--accent);">${money(amount)}</span>
+      </div>
+    `).join('');
+  }
+
+  function renderCategorySelect() {
+    const prev = expenseCategory.value;
+    expenseCategory.innerHTML = state.categories
+      .map(c => `<option value="${c.id}">${c.emoji} ${escapeHtml(c.name)}</option>`)
+      .join('');
+    if (state.categories.some(c => c.id === prev)) expenseCategory.value = prev;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderCategoryGrid() {
+    const totals = categoryTotals();
+    categoryGrid.innerHTML = state.categories.map(c => {
+      const t = totals[c.id] || { count: 0, total: 0 };
+      const hex = colorHex(c.color);
+      const activeClass = activeFilterCategoryId === c.id ? ' active-filter' : '';
+      return `
+        <div class="category-card${activeClass}" style="--cat-color:${hex}" data-cat-id="${c.id}">
+          <div class="cc-left">
+            <span class="cc-emoji">${c.emoji || '🏷️'}</span>
+            <div>
+              <div class="cc-name">${escapeHtml(c.name)}</div>
+              <div class="cc-count">${t.count} ${t.count === 1 ? 'entry' : 'entries'}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <span class="cc-amount">${money(t.total)}</span>
+            <button type="button" class="cc-delete" data-delete-cat="${c.id}" title="Delete category">✕</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    categoryGrid.querySelectorAll('.category-card').forEach(card => {
+      card.addEventListener('click', (ev) => {
+        if (ev.target.closest('.cc-delete')) return;
+        const id = card.dataset.catId;
+        activeFilterCategoryId = activeFilterCategoryId === id ? null : id;
+        renderCategoryGrid();
+        renderExpenseTable();
+      });
+    });
+    categoryGrid.querySelectorAll('[data-delete-cat]').forEach(btn => {
+      btn.addEventListener('click', () => deleteCategory(btn.dataset.deleteCat));
+    });
+  }
+
+  function deleteCategory(id) {
+    if (state.categories.length <= 1) {
+      alert('You need at least one category.');
+      return;
+    }
+    const cat = getCategory(id);
+    if (!cat) return;
+    if (!confirm(`Delete "${cat.name}"? Its expenses will move to another category.`)) return;
+
+    state.categories = state.categories.filter(c => c.id !== id);
+    const fallback = state.categories[0].id;
+    state.expenses.forEach(e => { if (e.categoryId === id) e.categoryId = fallback; });
+    if (activeFilterCategoryId === id) activeFilterCategoryId = null;
+
+    saveState();
+    renderAll();
+  }
+
+  function renderFilterBanner() {
+    if (!activeFilterCategoryId) {
+      filterBanner.hidden = true;
+      return;
+    }
+    const cat = getCategory(activeFilterCategoryId);
+    filterBanner.hidden = false;
+    filterBannerText.textContent = cat ? `Showing only: ${cat.emoji} ${cat.name}` : 'Showing filtered expenses';
+  }
+
+  function renderExpenseTable() {
+    renderFilterBanner();
+
+    let list = state.expenses.slice();
+    if (activeFilterCategoryId) list = list.filter(e => e.categoryId === activeFilterCategoryId);
+
+    // newest first: by date desc, then by insertion order desc
+    list = list
+      .map((e, idx) => ({ e, idx }))
+      .sort((a, b) => {
+        if (a.e.date !== b.e.date) return a.e.date < b.e.date ? 1 : -1;
+        return b.idx - a.idx;
+      })
+      .map(x => x.e);
+
+    expenseEmptyMsg.hidden = list.length > 0;
+
+    expenseTableBody.innerHTML = list.map(e => {
+      const cat = getCategory(e.categoryId);
+      const hex = cat ? colorHex(cat.color) : '#666';
+      const catLabel = cat ? `${cat.emoji} ${escapeHtml(cat.name)}` : 'Uncategorized';
+      return `
+        <tr data-expense-id="${e.id}">
+          <td class="expense-name">${escapeHtml(e.name || 'Untitled')}</td>
+          <td><span class="cat-tag" style="--cat-color:${hex}">${catLabel}</span></td>
+          <td>${escapeHtml(e.date || '')}</td>
+          <td>${escapeHtml(e.paidBy || '—')}</td>
+          <td class="expense-note">${escapeHtml(e.note || '—')}</td>
+          <td class="amount-cell">${money(e.amount)}</td>
+          <td><button type="button" class="btn-icon" data-delete-expense="${e.id}" title="Delete expense">🗑️</button></td>
+        </tr>
+      `;
+    }).join('');
+
+    expenseTableBody.querySelectorAll('[data-delete-expense]').forEach(btn => {
+      btn.addEventListener('click', () => deleteExpense(btn.dataset.deleteExpense));
+    });
+  }
+
+  function deleteExpense(id) {
+    const exp = state.expenses.find(e => e.id === id);
+    if (!exp) return;
+    if (!confirm(`Delete "${exp.name || 'this expense'}"?`)) return;
+    state.expenses = state.expenses.filter(e => e.id !== id);
+    saveState();
+    renderAll();
+  }
+
+  function updateCounts() {
+    const n = state.expenses.length;
+    expenseCountLabel.textContent = `${n} ${n === 1 ? 'expense' : 'expenses'} logged`;
+    const c = state.categories.length;
+    categoryCountLabel.textContent = `${c} ${c === 1 ? 'category' : 'categories'} available`;
+  }
+
+  function renderInsights() {
+    const expenses = state.expenses;
+    const totalSpent = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    const avg = expenses.length ? totalSpent / expenses.length : 0;
+    const biggest = expenses.reduce((max, e) => Math.max(max, Number(e.amount) || 0), 0);
+
+    insTotalSpent.textContent = money(totalSpent);
+    insAvg.textContent = money(avg);
+    insBiggest.textContent = money(biggest);
+
+    const totals = categoryTotals();
+    const maxTotal = Math.max(1, ...state.categories.map(c => totals[c.id].total));
+
+    categoryBars.innerHTML = state.categories.map(c => {
+      const t = totals[c.id];
+      const hex = colorHex(c.color);
+      const width = Math.round((t.total / maxTotal) * 100);
+      return `
+        <div class="bar-row">
+          <div class="bar-row-top">
+            <span class="bar-name">${c.emoji} ${escapeHtml(c.name)}</span>
+            <span style="color:${hex}">${money(t.total)}</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:${width}%;background:${hex}"></div></div>
+        </div>
+      `;
+    }).join('');
+
+    if (expenses.length === 0) {
+      topCategoryMsg.textContent = 'Add expenses to see your top spending category.';
+    } else {
+      let topId = null;
+      let topTotal = -1;
+      state.categories.forEach(c => {
+        if (totals[c.id].total > topTotal) { topTotal = totals[c.id].total; topId = c.id; }
+      });
+      const top = getCategory(topId);
+      if (top && topTotal > 0) {
+        const t = totals[topId];
+        topCategoryMsg.textContent = `${top.emoji} ${top.name} is your biggest spend so far at ${money(t.total)} across ${t.count} ${t.count === 1 ? 'entry' : 'entries'}.`;
+      } else {
+        topCategoryMsg.textContent = 'Add expenses to see your top spending category.';
+      }
+    }
+  }
+
+  function renderAll() {
+    renderTripFields();
+    renderSnapshot();
+    renderCategorySelect();
+    renderCategoryGrid();
+    renderExpenseTable();
+    updateCounts();
+    if (activeTab === 'insights') renderInsights();
+  }
+
+  // ---- Event wiring ----
+  tripNameInput.addEventListener('input', () => {
+    state.tripName = tripNameInput.value;
+    saveState();
+  });
+
+  budgetInput.addEventListener('input', () => {
+    state.budget = parseFloat(budgetInput.value) || 0;
+    saveState();
+    renderSnapshot();
+  });
+
+  tripStartDate.addEventListener('change', () => {
+    state.startDate = tripStartDate.value;
+    saveState();
+  });
+
+  tripEndDate.addEventListener('change', () => {
+    state.endDate = tripEndDate.value;
+    saveState();
+  });
+
+  expenseForm.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const name = expenseName.value.trim();
+    const amount = parseFloat(expenseAmount.value);
+    if (!name) { expenseName.focus(); return; }
+    if (!amount || amount <= 0) { expenseAmount.focus(); return; }
+
+    const entry = {
+      id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      name,
+      amount,
+      date: expenseDate.value || todayISO(),
+      categoryId: expenseCategory.value || state.categories[0].id,
+      note: expenseNote.value.trim(),
+      paidBy: expensePaidBy.value.trim()
+    };
+    state.expenses.push(entry);
+    saveState();
+
+    expenseName.value = '';
+    expenseAmount.value = '';
+    expenseNote.value = '';
+    expensePaidBy.value = '';
+    expenseDate.value = todayISO();
+
+    renderSnapshot();
+    renderCategoryGrid();
+    renderExpenseTable();
+    updateCounts();
+    if (activeTab === 'insights') renderInsights();
+  });
+
+  categoryForm.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const name = categoryName.value.trim();
+    if (!name) { categoryName.focus(); return; }
+    const emoji = categoryEmoji.value.trim() || '🏷️';
+    const color = categoryColor.value || 'ocean';
+
+    state.categories.push({ id: slugify(name), name, emoji, color });
+    saveState();
+
+    categoryName.value = '';
+    categoryEmoji.value = '';
+    categoryColor.value = 'ocean';
+
+    renderCategorySelect();
+    renderCategoryGrid();
+    updateCounts();
+    if (activeTab === 'insights') renderInsights();
+  });
+
+  clearFilterBtn.addEventListener('click', () => {
+    activeFilterCategoryId = null;
+    renderCategoryGrid();
+    renderExpenseTable();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    if (!confirm('Reset this trip back to the example data? Anything you added will be lost.')) return;
+    state = defaultState();
+    activeFilterCategoryId = null;
+    saveState();
+    renderAll();
+  });
+
+  // ---- Save/Import functionality ----
+  async function downloadState() {
+    // Get the current state from browser (localStorage)
+    const dataStr = JSON.stringify(state, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    // Generate filename with date and time
+    const now = new Date();
+    const date = now.toISOString().split('T')[0]; // YYYY-MM-DD
+    const time = now.toTimeString().split(' ')[0].replace(/:/g, '-'); // HH-MM-SS
+    const defaultFilename = `travel-expense-${state.tripName.replace(/\s+/g, '-') || 'backup'}-${date}-${time}.json`;
+    
+    // Use File System Access API for modern browsers (Chrome, Edge, Firefox, Safari)
+    if (window.showSaveFilePicker) {
+      try {
+        // Open save dialog - user can choose location and filename
+        const handle = await window.showSaveFilePicker({
+          suggestedName: defaultFilename,
+          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }]
+        });
+        
+        // Write the browser's saved data to the chosen local file
+        const writable = await handle.createWritable();
+        await writable.write(dataBlob);
+        await writable.close();
+        
+        alert(`✅ Saved successfully!\n\nYour browser data has been cloned to:\n${handle.name}`);
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Save error:', err);
+          alert('Error saving file. Please try again.');
+        }
+        return;
+      }
+    }
+    
+    // Fallback for older browsers: traditional download with prompt
+    const filename = prompt(
+      'Enter filename (without .json):\n\nYour browser data will be saved to this file:',
+      state.tripName.replace(/\s+/g, '-') || 'backup'
+    );
+    if (filename === null) return;
+    
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename || 'travel-expense'}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    alert('✅ File saved! Check your downloads folder.');
+  }
+
+  function importState() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (imported.tripName && imported.budget !== undefined && Array.isArray(imported.expenses) && Array.isArray(imported.categories)) {
+            state = imported;
+            activeFilterCategoryId = null;
+            saveState();
+            renderAll();
+            alert('Data imported successfully!');
+          } else {
+            alert('Invalid file format. Please select a valid travel expense backup file.');
+          }
+        } catch (err) {
+          alert('Error reading file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  }
+
+  function exportToCSV() {
+    // Helper function to escape and quote CSV cells
+    const escapeCSV = (cell) => `"${String(cell).replace(/"/g, '""')}"`;
+    
+    // Prepare CSV headers
+    const headers = ['Expense', 'Category', 'Date', 'Paid by', 'Note', 'Amount'];
+    
+    // Prepare CSV rows
+    const rows = state.expenses.map(e => {
+      const cat = getCategory(e.categoryId);
+      const catName = cat ? cat.name : 'Uncategorized'; // Remove emoji for CSV compatibility
+      return [
+        e.name || 'Untitled',
+        catName,
+        e.date || '',
+        e.paidBy || '',
+        e.note || '',
+        e.amount || 0
+      ];
+    });
+
+    // Calculate totals by Paid by
+    const paidByBreakdown = {};
+    state.expenses.forEach(e => {
+      const payer = e.paidBy || '(no payer)';
+      if (!paidByBreakdown[payer]) {
+        paidByBreakdown[payer] = 0;
+      }
+      paidByBreakdown[payer] += Number(e.amount) || 0;
+    });
+
+    // Sort by amount descending
+    const paidBySorted = Object.entries(paidByBreakdown)
+      .sort((a, b) => b[1] - a[1]);
+
+    // Build CSV content as a string
+    let csvContent = '';
+    
+    // Add trip information
+    csvContent += escapeCSV('Trip Name:') + ',' + escapeCSV(state.tripName) + '\n';
+    csvContent += escapeCSV('Budget:') + ',' + escapeCSV(state.budget) + '\n';
+    csvContent += escapeCSV('Start Date:') + ',' + escapeCSV(state.startDate || '') + '\n';
+    csvContent += escapeCSV('End Date:') + ',' + escapeCSV(state.endDate || '') + '\n';
+    const totalSpent = state.expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    csvContent += escapeCSV('Total Spent:') + ',' + escapeCSV(totalSpent) + '\n\n';
+    
+    // Add expense headers and rows
+    csvContent += headers.map(h => escapeCSV(h)).join(',') + '\n';
+    rows.forEach(row => {
+      csvContent += row.map(cell => escapeCSV(cell)).join(',') + '\n';
+    });
+
+    // Add paid by breakdown section
+    if (paidBySorted.length > 0) {
+      csvContent += '\n';
+      csvContent += escapeCSV('TOTALS BY PAID BY') + '\n';
+      csvContent += escapeCSV('Paid by') + ',' + escapeCSV('Total') + '\n';
+      paidBySorted.forEach(([payer, amount]) => {
+        csvContent += escapeCSV(payer) + ',' + escapeCSV(amount) + '\n';
+      });
+    }
+
+    // Create blob and download with UTF-8 BOM for Excel compatibility
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const now = new Date();
+    const date = now.toISOString().split('T')[0];
+    const time = now.toTimeString().split(' ')[0].replace(/:/g, '-');
+    const filename = `travel-expense-${state.tripName.replace(/\s+/g, '-') || 'backup'}-${date}-${time}.csv`;
+    
+    link.setAttribute('href', URL.createObjectURL(blob));
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    alert(`✅ CSV exported successfully!\n\n${filename}`);
+  }
+
+  // Add save, import, and csv export buttons
+  const downloadBtn = document.createElement('button');
+  downloadBtn.type = 'button';
+  downloadBtn.className = 'btn btn-outline';
+  downloadBtn.textContent = '💾 Save';
+  downloadBtn.title = 'Save your expense data with custom filename and location';
+  downloadBtn.addEventListener('click', () => downloadState());
+
+  const importBtn = document.createElement('button');
+  importBtn.type = 'button';
+  importBtn.className = 'btn btn-outline';
+  importBtn.textContent = '⬆️ Import';
+  importBtn.title = 'Import previously saved expense data';
+  importBtn.addEventListener('click', importState);
+
+  const csvBtn = document.createElement('button');
+  csvBtn.type = 'button';
+  csvBtn.className = 'btn btn-outline';
+  csvBtn.textContent = '📊 CSV Export';
+  csvBtn.title = 'Export your expenses as a CSV file';
+  csvBtn.addEventListener('click', exportToCSV);
+
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.cssText = 'display: flex; gap: 8px; margin-bottom: 16px;';
+  buttonContainer.appendChild(downloadBtn);
+  buttonContainer.appendChild(importBtn);
+  buttonContainer.appendChild(csvBtn);
+
+  const pageElement = document.querySelector('.page');
+  pageElement.insertBefore(buttonContainer, pageElement.firstChild);
+
+  // ---- Init ----
+  expenseDate.value = todayISO();
+  renderAll();
+</script>
+</body>
+</html>
